@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CRUD Table</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    form input[type="text"],
+    form input[type="number"],
+    form input[type="url"],
+    form input[type="submit"] {
+      margin-right: 10px;
+    }
+
+    form input[type="text"],
+    form input[type="number"],
+    form input[type="url"] {
+      flex: 1;
+      padding: 5px;
+    }
+
+    form input[type="submit"] {
+      padding: 5px 10px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    form input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .action-buttons {
+      display: flex;
+    }
+
+    .action-buttons button {
+      margin-right: 5px;
+      padding: 5px 10px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .action-buttons button:last-child {
+      margin-right: 0;
+      background-color: #f44336;
+    }
+
+    .action-buttons button:hover {
+      background-color: #45a049;
+    }
+
+    .action-buttons button:last-child:hover {
+      background-color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CRUD Table</h1>
+
+    <form id="dataForm">
+      <input type="text" id="nameInput" placeholder="Name" required>
+      <input type="number" id="ageInput" placeholder="Age" required>
+      <input type="url" id="imageInput" placeholder="Image URL" required>
+      <input type="submit" value="Add">
+    </form>
+
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Image</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const form = document.getElementById('dataForm');
+    const nameInput = document.getElementById('nameInput');
+    const ageInput = document.getElementById('ageInput');
+    const imageInput = document.getElementById('imageInput');
+    const dataTable = document.getElementById('dataTable');
+
+    form.addEventListener('submit', handleFormSubmit);
+
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      const name = nameInput.value;
+      const age = ageInput.value;
+      const image = imageInput.value;
+
+      if (name.trim() === '' || age.trim() === '' || image.trim() === '') {
+        alert('Please enter all fields');
+        return;
+      }
+
+      addRow(name, age, image);
+      form.reset();
+    }
+
+    function addRow(name, age, image) {
+      const row = document.createElement('tr');
+
+      const nameCell = document.createElement('td');
+      nameCell.textContent = name;
+
+      const ageCell = document.createElement('td');
+      ageCell.textContent = age;
+
+      const imageCell = document.createElement('td');
+      imageCell.innerHTML = `<img src="${image}" alt="Image">`;
+
+      const actionCell = document.createElement('td');
+      actionCell.className = 'action-buttons';
+
+      const editButton = document.createElement('button');
+      editButton.textContent = 'Edit';
+      editButton.addEventListener('click', handleEditButtonClick);
+      actionCell.appendChild(editButton);
+
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.addEventListener('click', handleDeleteButtonClick);
+      actionCell.appendChild(deleteButton);
+
+      row.appendChild(nameCell);
+      row.appendChild(ageCell);
+      row.appendChild(imageCell);
+      row.appendChild(actionCell);
+
+      dataTable.querySelector('tbody').appendChild(row);
+    }
+
+    function handleEditButtonClick(event) {
+      const row = event.target.closest('tr');
+      const nameCell = row.cells[0];
+      const ageCell = row.cells[1];
+      const imageCell = row.cells[2];
+      const actionCell = row.cells[3];
+
+      const nameInput = document.createElement('input');
+      nameInput.value = nameCell.textContent;
+
+      const ageInput = document.createElement('input');
+      ageInput.value = ageCell.textContent;
+
+      const imageInput = document.createElement('input');
+      imageInput.value = imageCell.querySelector('img').src;
+
+      nameCell.textContent = '';
+      ageCell.textContent = '';
+      imageCell.textContent = '';
+
+      nameCell.appendChild(nameInput);
+      ageCell.appendChild(ageInput);
+      imageCell.appendChild(imageInput);
+
+      const doneButton = document.createElement('button');
+      doneButton.textContent = 'Done';
+      doneButton.addEventListener('click', () => handleDoneButtonClick(row));
+      actionCell.innerHTML = '';
+      actionCell.appendChild(doneButton);
+    }
+
+    function handleDoneButtonClick(row) {
+      const nameInput = row.cells[0].querySelector('input');
+      const ageInput = row.cells[1].querySelector('input');
+      const imageInput = row.cells[2].querySelector('input');
+
+      row.cells[0].textContent = nameInput.value;
+      row.cells[1].textContent = ageInput.value;
+      row.cells[2].innerHTML = `<img src="${imageInput.value}" alt="Image">`;
+
+      const actionCell = row.cells[3];
+      actionCell.innerHTML = '';
+
+      const editButton = document.createElement('button');
+      editButton.textContent = 'Edit';
+      editButton.addEventListener('click', handleEditButtonClick);
+      actionCell.appendChild(editButton);
+
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.addEventListener('click', handleDeleteButtonClick);
+      actionCell.appendChild(deleteButton);
+    }
+
+    function handleDeleteButtonClick(event) {
+      const row = event.target.closest('tr');
+      row.remove();
+    }
+  </script>
+</body>
+</html>
